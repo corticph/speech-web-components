@@ -40,7 +40,7 @@
     "healthcare"
   ],
   "dependencies": {
-    "@corti/sdk": "5.0.0",
+    "@corti/sdk": "6.0.0-rc",
     "@lit/context": "^1.1.6",
     "lit": "^3.3.3"
   },
