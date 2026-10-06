@@ -20,7 +20,7 @@
     "storybook:build": "tsc -b core && tsc -p tsconfig.stories.json && pnpm run analyze && storybook build"
   },
   "devDependencies": {
-    "@corti/sdk": "6.0.0-rc.2",
+    "@corti/sdk": "6.0.0",
     "@lit/context": "^1.1.6",
     "@biomejs/biome": "^2.3.6",
     "@custom-elements-manifest/analyzer": "^0.10.3",
