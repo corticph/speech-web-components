@@ -108,6 +108,7 @@ const meta = {
         @transcript=${eventAction("transcript")}
         @usage=${eventAction("usage")}
         @audio-level-changed=${eventAction("audio-level-changed")}
+        @media-stream-changed=${eventAction("media-stream-changed")}
       />
     `;
   },
@@ -176,6 +177,7 @@ export const AutoLoadLanguagesAndDevices = {
         @transcript=${eventAction("transcript")}
         @usage=${eventAction("usage")}
         @audio-level-changed=${eventAction("audio-level-changed")}
+        @media-stream-changed=${eventAction("media-stream-changed")}
         @virtual-mode-changed=${eventAction("virtual-mode-changed")}
       />
     `;

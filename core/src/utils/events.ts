@@ -25,6 +25,11 @@ export type AudioLevelChangedEventDetail = {
   audioLevel: number;
 };
 
+export type MediaStreamChangedEventDetail = {
+  /** The stream being recorded, or `null` once it is released. */
+  stream: MediaStream | null;
+};
+
 export type TranscriptEventDetail =
   | Corti.TranscribeTranscriptMessage
   | Corti.StreamTranscriptMessage;
@@ -213,6 +218,21 @@ export function audioLevelChangedEvent(
     bubbles: true,
     composed: true,
     detail: { audioLevel },
+  });
+}
+
+/**
+ * Fires with the stream the component records, right before recording starts,
+ * and with `null` when that stream is released. The stream is shared: read it
+ * (for example with an `AnalyserNode`) but do not stop or change its tracks.
+ */
+export function mediaStreamChangedEvent(
+  stream: MediaStream | null,
+): CustomEvent<MediaStreamChangedEventDetail> {
+  return new CustomEvent("media-stream-changed", {
+    bubbles: true,
+    composed: true,
+    detail: { stream },
   });
 }
 

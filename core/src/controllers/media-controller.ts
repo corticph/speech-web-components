@@ -1,4 +1,5 @@
 import type { ReactiveController, ReactiveControllerHost } from "lit";
+import { mediaStreamChangedEvent } from "../utils/events.js";
 import {
   calculateAudioLevel,
   createAudioAnalyzer,
@@ -76,6 +77,8 @@ export class MediaController implements ReactiveController {
         this.#dataHandler(event.data);
       }
     };
+
+    this.host.dispatchEvent(mediaStreamChangedEvent(this.#mediaStream));
   }
 
   getAudioLevel(): number {
@@ -125,6 +128,9 @@ export class MediaController implements ReactiveController {
     }
 
     if (this.#mediaStream) {
+      if (this.#mediaRecorder) {
+        this.host.dispatchEvent(mediaStreamChangedEvent(null));
+      }
       this.#mediaStream.getTracks().forEach((track) => {
         track.stop();
       });

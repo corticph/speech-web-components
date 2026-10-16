@@ -101,6 +101,7 @@ const meta = {
         <ambient-recording-button
           ?allowButtonFocus=${allowButtonFocus}
           @audio-level-changed=${action("audio-level-changed")}
+          @media-stream-changed=${action("media-stream-changed")}
           @error=${action("error")}
         ></ambient-recording-button>
         <dictation-settings-menu

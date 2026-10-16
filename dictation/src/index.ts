@@ -13,6 +13,7 @@ export type {
   KeybindingChangedEventDetail,
   LanguageChangedEventDetail,
   LanguagesChangedEventDetail,
+  MediaStreamChangedEventDetail,
   NetworkActivityEventDetail,
   RecordingDevicesChangedEventDetail,
   RecordingStateChangedEventDetail,
