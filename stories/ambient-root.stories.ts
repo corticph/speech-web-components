@@ -14,6 +14,7 @@ type AmbientRootStory = AmbientSettingsMenu &
   Pick<
     AmbientRoot,
     | "accessToken"
+    | "authConfig"
     | "interactionId"
     | "recordingState"
     | "pushToTalkKeybinding"
@@ -58,12 +59,14 @@ const meta = {
   },
   component: "ambient-root",
   parameters: {
+    cortiLive: "ambient",
     docs: {
       codePanel: true,
     },
   },
   render: ({
     accessToken,
+    authConfig,
     interactionId,
     settingsEnabled,
     recordingState,
@@ -78,6 +81,7 @@ const meta = {
     return html`
       <ambient-root
         .accessToken=${token}
+        .authConfig=${authConfig}
         .interactionId=${interaction}
         .recordingState=${recordingState}
         pushToTalkKeybinding=${pushToTalkKeybinding}

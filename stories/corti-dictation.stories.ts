@@ -55,12 +55,14 @@ const meta = {
   },
   component: "corti-dictation",
   parameters: {
+    cortiLive: "dictation",
     docs: {
       codePanel: true,
     },
   },
   render: ({
     accessToken,
+    authConfig,
     settingsEnabled,
     languagesSupported,
     allowButtonFocus,
@@ -76,6 +78,7 @@ const meta = {
     return html`
       <corti-dictation
         .accessToken=${accessToken}
+        .authConfig=${authConfig}
         settingsEnabled=${settingsEnabled}
         languagesSupported=${languagesSupported}
         ?allowButtonFocus=${allowButtonFocus}
@@ -194,13 +197,15 @@ export const AutoLoadLanguagesAndDevices = {
   ]),
   render: ({
     accessToken,
+    authConfig,
     settingsEnabled,
     allowButtonFocus,
     pushToTalkKeybinding,
     toggleToTalkKeybinding,
-  }) => html`
+  }: CortiDictationStory) => html`
     <corti-dictation
       .accessToken=${accessToken}
+      .authConfig=${authConfig}
       settingsEnabled=${settingsEnabled}
       ?allowButtonFocus=${allowButtonFocus}
       pushToTalkKeybinding=${pushToTalkKeybinding}

@@ -3,6 +3,7 @@
   "references": [
     { "path": "./core" },
     { "path": "./dictation" },
-    { "path": "./ambient" }
+    { "path": "./ambient" },
+    { "path": "./tsconfig.stories.json" }
   ]
 }

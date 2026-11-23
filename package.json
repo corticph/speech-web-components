@@ -16,7 +16,7 @@
     "prepare": "husky && husky install",
     "test": "tsc -b core && wtr --coverage",
     "test:watch": "concurrently -k -r \"tsc -b core --watch --preserveWatchOutput\" \"wtr --watch\"",
-    "storybook": "pnpm run analyze && storybook dev -p 8080",
+    "storybook": "pnpm run analyze && storybook dev -p 8080 --host 127.0.0.1",
     "storybook:build": "tsc -b core && tsc -p tsconfig.stories.json && pnpm run analyze && storybook build"
   },
   "devDependencies": {
@@ -31,6 +31,7 @@
     "@storybook/web-components": "10.1.5",
     "@storybook/web-components-vite": "10.1.5",
     "@types/mocha": "^10.0.7",
+    "@types/sinon": "^21.0.1",
     "@web/dev-server-esbuild": "0.4.4",
     "@web/storybook-builder": "^0.1.16",
     "@web/storybook-framework-web-components": "^0.1.2",
