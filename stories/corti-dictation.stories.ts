@@ -1,3 +1,4 @@
+import type { Corti } from "@corti/sdk";
 import type { Meta, StoryObj } from "@storybook/web-components-vite";
 import { html, nothing } from "lit";
 
@@ -180,6 +181,65 @@ export const WithKeybindings = {
   },
   argTypes: disableControls(["settingsEnabled"]),
 };
+
+export const FocusHandling = {
+  args: {
+    accessToken: "dummy_token",
+    allowButtonFocus: false,
+    languagesSupported: languages,
+    settingsEnabled: ["device"],
+  },
+  argTypes: disableControls(["settingsEnabled"]),
+  render: ({
+    accessToken,
+    authConfig,
+    allowButtonFocus,
+    settingsEnabled,
+    pushToTalkKeybinding,
+    toggleToTalkKeybinding,
+  }) => {
+    const insertTranscript = (event: Event) => {
+      if (!(event.currentTarget instanceof HTMLElement)) {
+        return;
+      }
+
+      const transcriptEvent =
+        event as CustomEvent<Corti.TranscribeTranscriptMessage>;
+      const { data } = transcriptEvent.detail;
+      const textarea = event.currentTarget.querySelector("textarea");
+
+      if (!data.isFinal || !textarea) {
+        return;
+      }
+
+      textarea.setRangeText(
+        data.text,
+        textarea.selectionStart,
+        textarea.selectionEnd,
+        "end",
+      );
+    };
+
+    return html`
+      <div @transcript=${insertTranscript}>
+        <textarea
+          aria-label="Dictation text"
+          placeholder="Dictate here, with or without focus"
+          rows="8"
+        ></textarea>
+        <corti-dictation
+          .accessToken=${accessToken}
+          .authConfig=${authConfig}
+          ?allowButtonFocus=${allowButtonFocus}
+          settingsEnabled=${settingsEnabled}
+          .pushToTalkKeybinding=${pushToTalkKeybinding}
+          .toggleToTalkKeybinding=${toggleToTalkKeybinding}
+          @error=${eventAction("error")}
+        />
+      </div>
+    `;
+  },
+} as StoryObj<CortiDictationStory>;
 
 export const AutoLoadLanguagesAndDevices = {
   args: {
