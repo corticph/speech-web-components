@@ -10,7 +10,9 @@ export type {
   DeltaUsageEventDetail,
   ErrorEventDetail,
   KeybindingActivatedEventDetail,
+  KeybindingCancelledEventDetail,
   KeybindingChangedEventDetail,
+  KeybindingInputEventDetail,
   LanguageChangedEventDetail,
   LanguagesChangedEventDetail,
   NetworkActivityEventDetail,
@@ -29,3 +31,12 @@ export { DictationLanguageSelector } from "./components/dictation-language-selec
 export { DictationRecordingButton } from "./components/dictation-recording-button.js";
 export { DictationSettingsMenu } from "./components/dictation-settings-menu.js";
 export { DictationRoot } from "./contexts/dictation-context.js";
+export {
+  type DictationTextBoundaries,
+  type DictationTextBoundaryContext,
+  DictationTextController,
+  type DictationTextControllerOptions,
+  type DictationTextEdit,
+  type DictationTextField,
+  type DictationTextHost,
+} from "./controllers/dictation-text-controller.js";

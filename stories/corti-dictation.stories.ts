@@ -1,9 +1,12 @@
-import type { Corti } from "@corti/sdk";
 import type { Meta, StoryObj } from "@storybook/web-components-vite";
 import { html, nothing } from "lit";
+import { AsyncDirective } from "lit/async-directive.js";
+import { directive, type ElementPart } from "lit/directive.js";
 
 import "../core/src/components/speech-audio-visualiser.js";
 import type { CortiDictation } from "../dictation/src/components/corti-dictation.js";
+import { DEFAULT_DICTATION_CONFIG } from "../dictation/src/constants.js";
+import { DictationTextController } from "../dictation/src/controllers/dictation-text-controller.js";
 
 import DeviceSelectorStoryMeta from "./device-selector.stories.js";
 import LanguageSelectorStoryMeta from "./language-selector.stories.js";
@@ -20,6 +23,48 @@ import {
 type CortiDictationStory = Omit<CortiDictation, "selectedDevice"> & {
   selectedDevice?: string;
 };
+
+class FocusHandlingBinding extends AsyncDirective {
+  #element?: Element;
+  #controller?: DictationTextController;
+
+  render() {
+    return nothing;
+  }
+
+  update(part: ElementPart) {
+    this.#element = part.element;
+    this.#connect();
+    return nothing;
+  }
+
+  #connect() {
+    queueMicrotask(() => {
+      if (!this.isConnected || this.#controller) return;
+      const dictation = this.#element?.querySelector("corti-dictation");
+      const fields = this.#element?.querySelectorAll("textarea");
+      if (!dictation || !fields?.length) return;
+      this.#controller = new DictationTextController({
+        dictation,
+        fields: [...fields],
+      });
+      for (const name of ["error", "text-conflict", "no-target"]) {
+        this.#controller.addEventListener(name, eventAction(name));
+      }
+    });
+  }
+
+  disconnected() {
+    this.#controller?.disconnect();
+    this.#controller = undefined;
+  }
+
+  reconnected() {
+    this.#connect();
+  }
+}
+
+const focusHandlingBinding = directive(FocusHandlingBinding);
 
 const meta = {
   args: {
@@ -186,6 +231,7 @@ export const FocusHandling = {
   args: {
     accessToken: "dummy_token",
     allowButtonFocus: false,
+    dictationConfig: { ...DEFAULT_DICTATION_CONFIG, interimResults: true },
     languagesSupported: languages,
     settingsEnabled: ["device"],
   },
@@ -197,34 +243,25 @@ export const FocusHandling = {
     settingsEnabled,
     pushToTalkKeybinding,
     toggleToTalkKeybinding,
+    dictationConfig,
   }) => {
-    const insertTranscript = (event: Event) => {
-      if (!(event.currentTarget instanceof HTMLElement)) {
-        return;
-      }
-
-      const transcriptEvent =
-        event as CustomEvent<Corti.TranscribeTranscriptMessage>;
-      const { data } = transcriptEvent.detail;
-      const textarea = event.currentTarget.querySelector("textarea");
-
-      if (!data.isFinal || !textarea) {
-        return;
-      }
-
-      textarea.setRangeText(
-        data.text,
-        textarea.selectionStart,
-        textarea.selectionEnd,
-        "end",
-      );
-    };
-
     return html`
-      <div @transcript=${insertTranscript}>
+      <div ${focusHandlingBinding()}>
+        <p>
+          Tap Space to type a space; hold it for 250 ms to dictate.
+          Focus a field to choose the next dictation destination.
+          Typing is read-only while dictation is processing.
+          Dictated segments are spaced automatically, including when inserted
+          inside existing words.
+        </p>
         <textarea
           aria-label="Dictation text"
           placeholder="Dictate here, with or without focus"
+          rows="8"
+        ></textarea>
+        <textarea
+          aria-label="Second dictation field"
+          placeholder="Or focus this field before dictating"
           rows="8"
         ></textarea>
         <corti-dictation
@@ -234,6 +271,7 @@ export const FocusHandling = {
           settingsEnabled=${settingsEnabled}
           .pushToTalkKeybinding=${pushToTalkKeybinding}
           .toggleToTalkKeybinding=${toggleToTalkKeybinding}
+          .dictationConfig=${dictationConfig}
           @error=${eventAction("error")}
         />
       </div>

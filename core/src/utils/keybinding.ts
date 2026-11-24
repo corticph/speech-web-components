@@ -154,3 +154,17 @@ export function shouldIgnoreKeybinding(element: Element | null): boolean {
 
   return false;
 }
+
+export function keybindingEditableTarget(event: KeyboardEvent): Element | null {
+  for (const target of event.composedPath()) {
+    if (target instanceof Element && shouldIgnoreKeybinding(target)) {
+      return target;
+    }
+  }
+
+  let active = document.activeElement;
+  while (active?.shadowRoot?.activeElement) {
+    active = active.shadowRoot.activeElement;
+  }
+  return active && shouldIgnoreKeybinding(active) ? active : null;
+}

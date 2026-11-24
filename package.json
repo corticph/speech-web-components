@@ -36,6 +36,7 @@
     "@web/storybook-builder": "^0.1.16",
     "@web/storybook-framework-web-components": "^0.1.2",
     "@web/test-runner": "^0.18.2",
+    "@web/test-runner-commands": "^1.1.0",
     "concurrently": "^8.2.2",
     "esbuild": "^0.25.0",
     "husky": "^8.0.0",
