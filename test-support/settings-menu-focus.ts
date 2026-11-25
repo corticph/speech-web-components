@@ -5,7 +5,12 @@ import { SettingsMenuBase } from "../core/src/components/settings-menu-base.js";
 
 class TestSettingsMenu extends SettingsMenuBase {
   protected _renderDeviceSelector() {
-    return html`<input aria-label="Device">`;
+    return html`
+      <select aria-label="Device">
+        <option value="first">First</option>
+        <option value="second">Second</option>
+      </select>
+    `;
   }
 
   protected _renderLanguageSelector(): typeof nothing {
@@ -241,15 +246,128 @@ describe("SettingsMenuBase focus", () => {
     expect(document.activeElement === other).to.equal(true);
   });
 
-  it("does not restore the editor after interacting with settings", async () => {
-    const { button, editor, menu, outside, popover } = await setup();
+  it("restores the editor and caret after a dropdown and neutral outside click", async () => {
+    const { button, editor, menu, outside, popover, selection } = await setup();
     await click(button);
-    const input = menu.shadowRoot?.querySelector<HTMLInputElement>("input");
-    if (!input) throw new Error("Settings input did not render.");
-    await click(input);
-    expect(menu.shadowRoot?.activeElement === input).to.equal(true);
+    const select = menu.shadowRoot?.querySelector<HTMLSelectElement>("select");
+    if (!select) throw new Error("Settings dropdown did not render.");
+    select.focus();
+    select.value = "second";
+    select.dispatchEvent(new Event("change", { bubbles: true }));
+    expect(menu.shadowRoot?.activeElement === select).to.equal(true);
+    expect(popover.matches(":popover-open")).to.equal(true);
+    expect(select.value).to.equal("second");
     await click(outside);
     await waitUntil(() => !popover.matches(":popover-open"));
+    await waitUntil(() => document.activeElement === editor);
+    expect(selection.anchorNode === editor.firstChild).to.equal(true);
+    expect(selection.anchorOffset).to.equal(5);
+  });
+
+  it("keeps the outside input focused after interacting with a dropdown", async () => {
+    const { button, editor, menu, other, otherButton, popover } = await setup();
+    await click(button);
+    const select = menu.shadowRoot?.querySelector<HTMLSelectElement>("select");
+    if (!select) throw new Error("Settings dropdown did not render.");
+    select.focus();
+    await click(other);
+    await waitUntil(() => !popover.matches(":popover-open"));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(document.activeElement === other).to.equal(true);
+    editor.focus();
+    await click(button);
+    select.focus();
+    await click(otherButton);
+    await waitUntil(() => !popover.matches(":popover-open"));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(document.activeElement === otherButton).to.equal(true);
+  });
+
+  it("does not override focus assigned by a neutral outside click", async () => {
+    const { button, menu, other, outside, popover } = await setup();
+    outside.addEventListener("click", () => other.focus());
+    await click(button);
+    const select = menu.shadowRoot?.querySelector<HTMLSelectElement>("select");
+    if (!select) throw new Error("Settings dropdown did not render.");
+    select.focus();
+    await click(outside);
+    await waitUntil(() => !popover.matches(":popover-open"));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(document.activeElement === other).to.equal(true);
+  });
+
+  it("restores an anchored textarea inside an open shadow root", async () => {
+    const { button, editor, menu, outside, popover } = await setup();
+    const host = document.createElement("div");
+    const shadow = host.attachShadow({ mode: "open" });
+    const field = document.createElement("textarea");
+    field.value = "hello world";
+    shadow.append(field);
+    editor.after(host);
+    field.focus();
+    field.setSelectionRange(2, 5);
+    await click(button);
+    const select = menu.shadowRoot?.querySelector<HTMLSelectElement>("select");
+    if (!select) throw new Error("Settings dropdown did not render.");
+    select.focus();
+    await click(outside);
+    await waitUntil(() => !popover.matches(":popover-open"));
+    await waitUntil(() => shadow.activeElement === field);
+    expect([field.selectionStart, field.selectionEnd]).to.deep.equal([2, 5]);
+  });
+
+  it("restores a backward contenteditable selection inside an open shadow root", async () => {
+    const { button, editor, menu, outside, popover } = await setup();
+    const host = document.createElement("div");
+    const shadow = host.attachShadow({ mode: "open" });
+    const field = document.createElement("div");
+    field.contentEditable = "true";
+    field.textContent = "hello world";
+    shadow.append(field);
+    editor.after(host);
+    field.focus();
+    const selection = document.getSelection();
+    if (!selection || !field.firstChild)
+      throw new Error("Selection is unavailable.");
+    selection.setBaseAndExtent(field.firstChild, 8, field.firstChild, 3);
+    await click(button);
+    const select = menu.shadowRoot?.querySelector<HTMLSelectElement>("select");
+    if (!select) throw new Error("Settings dropdown did not render.");
+    select.focus();
+    await click(outside);
+    await waitUntil(() => !popover.matches(":popover-open"));
+    await waitUntil(() => shadow.activeElement === field);
+    expect(selection.anchorNode === field.firstChild).to.equal(true);
+    expect(selection.focusNode === field.firstChild).to.equal(true);
+    expect([selection.anchorOffset, selection.focusOffset]).to.deep.equal([
+      8, 3,
+    ]);
+  });
+
+  it("does not restore a removed editor after a dropdown dismissal", async () => {
+    const { button, editor, menu, outside, popover } = await setup();
+    await click(button);
+    const select = menu.shadowRoot?.querySelector<HTMLSelectElement>("select");
+    if (!select) throw new Error("Settings dropdown did not render.");
+    select.focus();
+    editor.remove();
+    await click(outside);
+    await waitUntil(() => !popover.matches(":popover-open"));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(document.activeElement === editor).to.equal(false);
+  });
+
+  it("does not restore an editor after enabling button focus", async () => {
+    const { button, editor, menu, outside, popover } = await setup();
+    await click(button);
+    const select = menu.shadowRoot?.querySelector<HTMLSelectElement>("select");
+    if (!select) throw new Error("Settings dropdown did not render.");
+    select.focus();
+    menu.allowButtonFocus = true;
+    await menu.updateComplete;
+    await click(outside);
+    await waitUntil(() => !popover.matches(":popover-open"));
+    await new Promise((resolve) => setTimeout(resolve, 0));
     expect(document.activeElement === editor).to.equal(false);
   });
 
@@ -279,6 +397,37 @@ describe("SettingsMenuBase focus", () => {
     await sendKeys({ press: "Escape" });
     await waitUntil(() => !popover.matches(":popover-open"));
     expect(document.activeElement === editor).to.equal(true);
+  });
+
+  it("does not restore focus after a dropdown drag that leaves the popover open", async () => {
+    const { button, editor, menu, outside, popover } = await setup();
+    await click(button);
+    const select = menu.shadowRoot?.querySelector<HTMLSelectElement>("select");
+    if (!select) throw new Error("Settings dropdown did not render.");
+    select.focus();
+    const outsideRect = outside.getBoundingClientRect();
+    const popoverRect = popover.getBoundingClientRect();
+    await sendMouse({
+      position: [
+        Math.round(outsideRect.left + 5),
+        Math.round(outsideRect.top + 5),
+      ],
+      type: "move",
+    });
+    await sendMouse({ type: "down" });
+    await sendMouse({
+      position: [
+        Math.round(popoverRect.left + 5),
+        Math.round(popoverRect.top + 5),
+      ],
+      type: "move",
+    });
+    await sendMouse({ type: "up" });
+    expect(popover.matches(":popover-open")).to.equal(true);
+    await new Promise((resolve) => setTimeout(resolve, 10));
+    popover.hidePopover();
+    await new Promise((resolve) => setTimeout(resolve, 10));
+    expect(document.activeElement === editor).to.equal(false);
   });
 
   it("does not affect outside clicks after settings are removed", async () => {
