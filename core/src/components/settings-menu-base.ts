@@ -4,6 +4,7 @@ import {
   html,
   LitElement,
   nothing,
+  type PropertyValues,
   type TemplateResult,
 } from "lit";
 import { property, state } from "lit/decorators.js";
@@ -45,11 +46,87 @@ export abstract class SettingsMenuBase extends LitElement {
   })
   settingsEnabled: ConfigurableSettings[] = ["device", "language"];
 
+  /** Whether clicking the settings button may move focus to it. */
+  @property({ type: Boolean })
+  allowButtonFocus: boolean = false;
+
   static styles: CSSResultGroup = [
     SettingsMenuStyles,
     ButtonStyles,
     CalloutStyles,
   ];
+
+  #handleMouseDown(event: MouseEvent): void {
+    if (!this.allowButtonFocus) {
+      event.preventDefault();
+    }
+  }
+
+  #handleOutsideMouseDown = (event: MouseEvent): void => {
+    const path = event.composedPath();
+    if (
+      this.allowButtonFocus ||
+      event.button !== 0 ||
+      this.matches(":focus-within") ||
+      path.includes(this) ||
+      path.some(
+        (node) =>
+          node instanceof Element &&
+          (node.matches(
+            "a[href], area[href], button, input, select, textarea, summary, [tabindex], [controls]",
+          ) ||
+            (node instanceof HTMLElement && node.isContentEditable) ||
+            (node instanceof HTMLLabelElement && node.control !== null)),
+      )
+    ) {
+      return;
+    }
+
+    let active = this.ownerDocument.activeElement;
+    while (active?.shadowRoot?.activeElement) {
+      active = active.shadowRoot.activeElement;
+    }
+    if (
+      active instanceof HTMLInputElement ||
+      active instanceof HTMLTextAreaElement ||
+      (active instanceof HTMLElement && active.isContentEditable)
+    ) {
+      event.preventDefault();
+    }
+  };
+
+  #removeOutsideListener(): void {
+    this.ownerDocument.removeEventListener(
+      "mousedown",
+      this.#handleOutsideMouseDown,
+      true,
+    );
+  }
+
+  #handleBeforeToggle(event: ToggleEvent): void {
+    this.#removeOutsideListener();
+    if (event.newState === "open") {
+      this.ownerDocument.addEventListener(
+        "mousedown",
+        this.#handleOutsideMouseDown,
+        true,
+      );
+    }
+  }
+
+  protected override willUpdate(changedProperties: PropertyValues): void {
+    if (
+      changedProperties.has("settingsEnabled") &&
+      this.settingsEnabled?.length === 0
+    ) {
+      this.#removeOutsideListener();
+    }
+  }
+
+  override disconnectedCallback(): void {
+    this.#removeOutsideListener();
+    super.disconnectedCallback();
+  }
 
   render() {
     if (this.settingsEnabled?.length === 0) {
@@ -64,10 +141,18 @@ export abstract class SettingsMenuBase extends LitElement {
 
     return html`
       <div class="mic-selector">
-        <button id="settings-popover-button" popovertarget="settings-popover">
+        <button
+          @mousedown=${this.#handleMouseDown}
+          id="settings-popover-button"
+          popovertarget="settings-popover"
+        >
           <icon-settings />
         </button>
-        <div id="settings-popover" popover>
+        <div
+          id="settings-popover"
+          popover
+          @beforetoggle=${this.#handleBeforeToggle}
+        >
           <div class="settings-wrapper">
             ${
               isRecording

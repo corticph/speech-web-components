@@ -128,6 +128,7 @@ export class CortiAmbient extends CortiRoot<
           this.settingsEnabled?.length > 0
             ? html`<ambient-settings-menu
                 .settingsEnabled=${this.settingsEnabled}
+                ?allowButtonFocus=${this.allowButtonFocus}
               ></ambient-settings-menu>`
             : nothing
         }

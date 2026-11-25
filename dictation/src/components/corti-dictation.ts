@@ -128,6 +128,7 @@ export class CortiDictation extends CortiRoot<
           this.settingsEnabled?.length > 0
             ? html`<dictation-settings-menu
                 .settingsEnabled=${this.settingsEnabled}
+                ?allowButtonFocus=${this.allowButtonFocus}
               ></dictation-settings-menu>`
             : nothing
         }

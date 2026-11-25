@@ -86,9 +86,12 @@ export class CortiRoot<
   settingsEnabled: ConfigurableSettings[] = ["device", "language"];
 
   /**
-   * When false (default), clicking the start/stop button does not move focus
-   *  to the button, allowing textareas or other input elements to keep focus.
-   *  Set to true to allow the button to receive focus on click.
+   * When false (default), clicking the start/stop or settings button does not
+   * move focus to the button, allowing textareas or other input elements to keep focus.
+   * Set to true to allow these buttons to receive focus on click.
+   * While settings are open, a mouse-down on a non-focusable outside area is
+   * prevented to retain editor focus. This can prevent text selection or dragging.
+   * Clicks on other focusable controls keep their normal focus behavior.
    */
   @property({ type: Boolean })
   allowButtonFocus: boolean = false;

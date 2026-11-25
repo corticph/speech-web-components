@@ -16,6 +16,9 @@ import {
   type DictationTextControllerOptions,
 } from "../dictation/src/controllers/dictation-text-controller.js";
 
+// Keep native keyboard and mouse tests in one browser session.
+import "../test-support/settings-menu-focus.js";
+
 class TextTestDictation extends LitElement {
   recordingState: RecordingStateChangedEventDetail["state"] = "stopped";
   dictationConfig = { primaryLanguage: "en" };
