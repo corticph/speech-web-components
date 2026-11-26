@@ -26,3 +26,6 @@ storybook-static
 custom-elements.json
 
 .security-scan/
+
+# Local Storybook API credentials
+.env.local

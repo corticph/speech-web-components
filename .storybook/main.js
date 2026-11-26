@@ -1,5 +1,6 @@
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { createLivePlugin, readLiveSettings } from "./live-server.js";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -12,7 +13,16 @@ export default {
   ],
   framework:  '@storybook/web-components-vite',
 
-  viteFinal: async (config) => {
+  viteFinal: async (config, { configType }) => {
+    const settings = configType === "DEVELOPMENT" ? readLiveSettings(root) : undefined;
+    config.define = {
+      ...config.define,
+      __STORYBOOK_LIVE__: JSON.stringify(Boolean(settings)),
+    };
+    if (settings) {
+      config.server = { ...config.server, host: "127.0.0.1" };
+      config.plugins = [...(config.plugins ?? []), createLivePlugin(settings)];
+    }
     config.resolve ??= {};
     config.resolve.alias = {
       ...config.resolve.alias,

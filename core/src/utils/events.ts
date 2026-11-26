@@ -243,6 +243,36 @@ export type KeybindingActivatedEventDetail = {
   keyboardEvent: KeyboardEvent;
 };
 
+export type KeybindingInputEventDetail = {
+  keyboardEvent: KeyboardEvent;
+  binding: "push-to-talk" | "toggle-to-talk" | null;
+};
+
+export type KeybindingCancelledEventDetail = {
+  reason: "blur" | "disconnected";
+};
+
+export function keybindingInputEvent(
+  detail: KeybindingInputEventDetail,
+): CustomEvent<KeybindingInputEventDetail> {
+  return new CustomEvent("keybinding-input", {
+    bubbles: true,
+    cancelable: true,
+    composed: true,
+    detail,
+  });
+}
+
+export function keybindingCancelledEvent(
+  reason: KeybindingCancelledEventDetail["reason"],
+): CustomEvent<KeybindingCancelledEventDetail> {
+  return new CustomEvent("keybinding-cancelled", {
+    bubbles: true,
+    composed: true,
+    detail: { reason },
+  });
+}
+
 export function keybindingChangedEvent(
   key: string | null | undefined,
   code: string | null | undefined,

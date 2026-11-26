@@ -29,3 +29,27 @@ Product documentation (install, API, auth, styling) lives on [docs.corti.ai](htt
 
 - [Dictation Web Component](https://docs.corti.ai/sdk/dictation/overview)
 - [Ambient Web Component](https://docs.corti.ai/sdk/ambient/overview)
+
+## Live testing in local Storybook
+
+Credential-enabled Storybook is local-computer-only. Use `pnpm storybook`. To 
+enable automatic authentication, copy [.env.local.example](./.env.local.example) 
+to `.env.local` and fill in the Corti client ID, client secret, tenant name, and
+environment (for example, `eu` or `us`). The .env file is read only by the local
+server; restart Storybook after changing it.
+
+In the **Canvas** view, CortiDictation, CortiAmbient, and AmbientRoot automatically
+replace dummy/empty credentials. The server-side Corti SDK acquires and refreshes
+tokens, and the browser SDK requests renewed tokens through local endpoints.
+Fetched tokens stay out of Storybook Controls/args. A real token entered in the
+`accessToken` control overrides automatic authentication.
+
+Ambient stories also create one real interaction per mounted story, with synthetic
+encounter metadata and no patient details. Re-rendering controls reuses it; opening
+another story or reloading creates another. Stories have no additional status or
+debug UI, including during setup and failures. A real `interactionId` entered manually
+overrides the example/generated ID. Interactions are **retained** for inspecting 
+results: clean them up outside Storybook. Real API usage may incur charges; use test
+credentials and synthetic audio, not patient data.
+
+

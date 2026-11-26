@@ -11,6 +11,14 @@ export default /** @type {import("@web/test-runner").TestRunnerConfig} */ ({
   },
 
   plugins: [
+    {
+      name: "core-source-alias",
+      resolveImport({ source }) {
+        if (source.startsWith("@core/")) {
+          return source.replace("@core/", "/core/src/").replace(/\.js$/, ".ts");
+        }
+      },
+    },
     esbuildPlugin({
       ts: true,
       tsconfig: resolve(process.cwd(), "tsconfig.test.json"),

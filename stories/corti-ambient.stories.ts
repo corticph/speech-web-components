@@ -61,12 +61,14 @@ const meta = {
   },
   component: "corti-ambient",
   parameters: {
+    cortiLive: "ambient",
     docs: {
       codePanel: true,
     },
   },
   render: ({
     accessToken,
+    authConfig,
     settingsEnabled,
     languagesSupported,
     allowButtonFocus,
@@ -85,6 +87,7 @@ const meta = {
     return html`
       <corti-ambient
         .accessToken=${accessToken}
+        .authConfig=${authConfig}
         .interactionId=${interaction}
         settingsEnabled=${settingsEnabled}
         languagesSupported=${languagesSupported}
@@ -148,6 +151,7 @@ export const AutoLoadLanguagesAndDevices = {
   ]),
   render: ({
     accessToken,
+    authConfig,
     interactionId,
     allowButtonFocus,
     pushToTalkKeybinding,
@@ -158,6 +162,7 @@ export const AutoLoadLanguagesAndDevices = {
     return html`
       <corti-ambient
         .accessToken=${accessToken}
+        .authConfig=${authConfig}
         .interactionId=${interaction}
         ?allowButtonFocus=${allowButtonFocus}
         pushToTalkKeybinding=${pushToTalkKeybinding}

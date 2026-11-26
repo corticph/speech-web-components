@@ -18,6 +18,8 @@ export class DictationRecordingButton extends RecordingButtonBase<
   Corti.TranscribeConfig,
   TranscribeMessage
 > {
+  readonly editableKeybindingEvents = true;
+
   @consume({ context: debugDisplayAudioContext, subscribe: true })
   @state()
   override _debug_displayAudio?: boolean;

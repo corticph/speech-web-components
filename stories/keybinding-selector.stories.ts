@@ -9,30 +9,30 @@ import type { DictationRoot } from "../dictation/src/contexts/dictation-context.
 import { disableControls } from "./helpers.js";
 
 export type KeybindingSelectorStory = DictationKeybindingSelector &
-  Pick<DictationRoot, "keybinding">;
+  Pick<DictationRoot, "toggleToTalkKeybinding">;
 
 const meta = {
   args: {
     disabled: false,
-    keybinding: "`",
+    toggleToTalkKeybinding: "`",
   },
   argTypes: {
     disabled: {
       control: "boolean",
       description: "Whether the keybinding selector is disabled",
     },
-    keybinding: {
+    toggleToTalkKeybinding: {
       control: "text",
       description:
-        "Keyboard shortcut for starting/stopping recording. Single key only (e.g., 'k', '`', 'KeyK', 'Backquote'). Supports both key names and key codes.",
+        "Toggle-to-talk keyboard shortcut. Single key only (e.g., 'k', '`', 'KeyK', 'Backquote').",
     },
   },
   component: "dictation-keybinding-selector",
-  render: ({ keybinding, disabled }) => {
+  render: ({ toggleToTalkKeybinding, disabled }) => {
     return html`
       <dictation-root
         ?noWrapper=${true}
-        keybinding=${keybinding}
+        .toggleToTalkKeybinding=${toggleToTalkKeybinding}
         @keybinding-changed=${action("keybinding-changed")}
         @error=${action("error")}
       >
@@ -56,28 +56,28 @@ export const Disabled = {
 
 export const WithKeyName = {
   args: {
-    keybinding: "k",
+    toggleToTalkKeybinding: "k",
   },
-  argTypes: disableControls(["keybinding"]),
+  argTypes: disableControls(["toggleToTalkKeybinding"]),
 } as StoryObj<KeybindingSelectorStory>;
 
 export const WithKeyCode = {
   args: {
-    keybinding: "KeyK",
+    toggleToTalkKeybinding: "KeyK",
   },
-  argTypes: disableControls(["keybinding"]),
+  argTypes: disableControls(["toggleToTalkKeybinding"]),
 } as StoryObj<KeybindingSelectorStory>;
 
 export const WithMetaKey = {
   args: {
-    keybinding: "meta",
+    toggleToTalkKeybinding: "meta",
   },
-  argTypes: disableControls(["keybinding"]),
+  argTypes: disableControls(["toggleToTalkKeybinding"]),
 } as StoryObj<KeybindingSelectorStory>;
 
 export const WithSpace = {
   args: {
-    keybinding: "Space",
+    toggleToTalkKeybinding: "Space",
   },
-  argTypes: disableControls(["keybinding"]),
+  argTypes: disableControls(["toggleToTalkKeybinding"]),
 } as StoryObj<KeybindingSelectorStory>;
