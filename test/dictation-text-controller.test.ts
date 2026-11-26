@@ -731,6 +731,19 @@ describe("DictationTextController", () => {
     expect(stop.callCount).to.equal(2);
   });
 
+  it("releases a global push-to-talk press when focus moves into a registered field", async () => {
+    const { container, field, start, stop } = await setup();
+    const outside = document.createElement("button");
+    container.append(outside);
+
+    key(outside, "keydown");
+    expect(start.callCount).to.equal(1);
+
+    field.focus();
+    key(field, "keyup");
+    expect(stop.callCount).to.equal(1);
+  });
+
   it("does not let a push-to-talk release or window blur stop a button-started recording", async () => {
     const { field, state, stop, start } = await setup();
     field.focus();

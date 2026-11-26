@@ -532,8 +532,6 @@ export class DictationTextController extends EventTarget {
 
     if (!isTextField(target) || !this.#fields.includes(target)) return;
 
-    event.preventDefault();
-
     if (
       key.type !== "keydown" ||
       key.defaultPrevented ||
@@ -547,6 +545,8 @@ export class DictationTextController extends EventTarget {
     ) {
       return;
     }
+
+    event.preventDefault();
 
     if (!binding) return;
 
