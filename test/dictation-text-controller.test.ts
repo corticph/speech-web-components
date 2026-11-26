@@ -482,6 +482,44 @@ describe("DictationTextController", () => {
     expect(field.selectionStart).to.equal(6);
   });
 
+  it("restores selected text when an interim transforms to empty and accepts later results", async () => {
+    const { dictation, field, state } = await setup({
+      transformTranscript: (text, { isFinal }) =>
+        text === "omit" && !isFinal ? "" : text,
+    });
+    field.value = "hello";
+    field.focus();
+    field.setSelectionRange(1, 4);
+    state("initializing");
+
+    transcript(dictation, "preview");
+    expect(field.value).to.equal("h preview o");
+    transcript(dictation, "omit");
+    expect(field.value).to.equal("hello");
+    transcript(dictation, "omit");
+    expect(field.value).to.equal("hello");
+    transcript(dictation, "new");
+    expect(field.value).to.equal("h new o");
+    transcript(dictation, "omit", true);
+    expect(field.value).to.equal("h omit o");
+  });
+
+  it("restores the trailing separator for an empty interim after a committed segment", async () => {
+    const { dictation, field, state } = await setup();
+    field.value = "hello";
+    field.focus();
+    field.setSelectionRange(1, 4);
+    state("initializing");
+
+    transcript(dictation, "word", true);
+    transcript(dictation, "preview", false, 1);
+    expect(field.value).to.equal("h word preview o");
+    transcript(dictation, "", false, 1);
+    expect(field.value).to.equal("h word o");
+    transcript(dictation, "next", true, 1);
+    expect(field.value).to.equal("h word next o");
+  });
+
   for (const [spaceBetweenSegments, spaceAroundInsertion, expected] of [
     [false, true, "hel worldagain lo"],
     [true, false, "helworld againlo"],

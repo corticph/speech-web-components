@@ -793,7 +793,7 @@ export class DictationTextController extends EventTarget {
 
     if (!text && !session.interim) return;
 
-    if (!text && data.isFinal) {
+    if (!text) {
       if (
         this.#applyEdit(
           {
@@ -809,7 +809,7 @@ export class DictationTextController extends EventTarget {
         session.end = session.start + session.original.length;
         session.expected = session.field.value;
         session.interim = false;
-        session.finals.add(id);
+        if (data.isFinal) session.finals.add(id);
       }
 
       return;
