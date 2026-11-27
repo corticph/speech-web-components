@@ -83,7 +83,7 @@ const meta = {
     allowButtonFocus: {
       control: "boolean",
       description:
-        "Whether the recording button inside the corti-dictation component can take focus on click",
+        "Whether the recording and settings buttons can take focus on click",
     },
     devices: DeviceSelectorStoryMeta.argTypes.devices,
     languagesSupported: LanguageSelectorStoryMeta.argTypes.languages,
