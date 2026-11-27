@@ -162,6 +162,12 @@ export abstract class RecordingButtonBase<
     this.toggleRecording();
   }
 
+  #handleMouseDown(event: MouseEvent): void {
+    if (!this.allowButtonFocus) {
+      event.preventDefault();
+    }
+  }
+
   #handleWebSocketMessage = (message: TMessage): void => {
     switch (message.type) {
       case "CONFIG_DENIED":
@@ -405,6 +411,7 @@ export abstract class RecordingButtonBase<
 
     return html`
       <button
+        @mousedown=${this.#handleMouseDown}
         @click=${this.#handleClick}
         ?disabled=${isLoading}
         class=${isRecording ? "red" : "accent"}
